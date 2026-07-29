@@ -10,8 +10,8 @@ async function getAuthToken(): Promise<string | null> {
   // Use createBrowserClient (same as the rest of the app) so it reads
   // from the cookie-based session set by @supabase/ssr — NOT localStorage.
   const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    frontendEnv.NEXT_PUBLIC_SUPABASE_URL!,
+    frontendEnv.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
   );
   const { data } = await supabase.auth.getSession();
   return data.session?.access_token ?? null;

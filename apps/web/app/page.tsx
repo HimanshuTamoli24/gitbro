@@ -13,6 +13,7 @@ import {
 } from "@repo/ui/components/ui/card";
 
 import { api } from "~/trpc/server";
+import { frontendEnv } from "@repo/env/client";
 
 export default function LandingPage() {
   const [loading, setLoading] = useState(true);
@@ -101,7 +102,7 @@ export default function LandingPage() {
                 <div className="space-y-3 text-sm">
                   <Row
                     label="API"
-                    value={process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}
+                    value={frontendEnv.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}
                   />
 
                   <Row label="Procedure" value="health.getHealth" />

@@ -8,7 +8,7 @@ import { generateOpenApiDocument, createOpenApiExpressMiddleware } from "trpc-to
 import { apiReference } from "@scalar/express-api-reference";
 
 import { serverRouter, createContext } from "@repo/trpc/server";
-
+import { corsair, toExpressHandler } from "@repo/trpc/client/corsair-client";
 import { env } from "@repo/env";
 
 export const app = express();
@@ -27,11 +27,12 @@ if (env.NODE_ENV !== "prod") {
   );
 }
 
-app.use(cookieParser())
+app.use(cookieParser());
 
 app.use(express.json());
 
 app.get("/", (req, res) => {
+  app.use("/api/corsair", toExpressHandler(corsair));
   return res.json({ message: "Streamyst is up and running..." });
 });
 
