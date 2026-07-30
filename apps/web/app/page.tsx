@@ -14,12 +14,13 @@ import {
 
 import { api } from "~/trpc/server";
 import { frontendEnv } from "@repo/env/client";
+import { useAuth } from "~/hooks/useAuth";
 
 export default function LandingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [health, setHealth] = useState<{ status: string } | null>(null);
-
+  const { user } = useAuth();
   async function checkHealth() {
     setLoading(true);
     setError(null);
@@ -127,6 +128,7 @@ export default function LandingPage() {
                     </>
                   )}
                 </Button>
+                <Row label="User" value={user?.id ?? "Not Logged In"} />
               </CardContent>
             </Card>
           </section>

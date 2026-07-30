@@ -1,6 +1,5 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import { createClient } from "@supabase/supabase-js";
-import { env } from "@repo/env";
 import { createCookieFactory, clearCookieFactory, getCookieFactory } from "./utils/cookie";
 
 export interface AuthUser {
@@ -27,12 +26,15 @@ export async function createContext({
 
   if (token) {
     // Use service-role key so this client can verify any user's JWT
-    const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
-      auth: { persistSession: false },
-    });
-
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: { persistSession: false },
+      },
+    );
     const { data, error } = await supabase.auth.getUser(token);
-
+    console.log("getUser", data, error);
     if (!error && data.user?.email) {
       user = {
         id: data.user.id,
