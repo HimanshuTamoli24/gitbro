@@ -11,6 +11,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@corsair-dev/cli": "^0.1.19",
     "@corsair-dev/github": "^0.1.14",
     "@repo/env": "workspace:^",
     "@repo/services": "workspace:*",
@@ -22,6 +23,6 @@
     "express": "^5.2.1",
     "pg": "^8.16.3",
     "trpc-to-openapi": "^3.1.0",
-    "zod": "^4.3.5"
+    "zod": "4.4.3"
   }
 }

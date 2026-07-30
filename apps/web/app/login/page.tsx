@@ -15,9 +15,11 @@ import { Label } from "@repo/ui/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/ui/tabs";
 import { AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail } from "lucide-react";
 import { useAuth } from "~/hooks/useAuth";
+import { trpc } from "~/trpc/client";
 
 export default function AuthPage() {
   const router = useRouter();
+
   const searchParams = useSearchParams();
   const initialMode = searchParams.get("mode") === "signup" ? "signup" : "login";
 

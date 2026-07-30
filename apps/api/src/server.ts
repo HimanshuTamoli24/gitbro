@@ -8,7 +8,8 @@ import { generateOpenApiDocument, createOpenApiExpressMiddleware } from "trpc-to
 import { apiReference } from "@scalar/express-api-reference";
 
 import { serverRouter, createContext } from "@repo/trpc/server";
-import { corsair, toExpressHandler } from "@repo/trpc/client/corsair-client";
+import { corsair, toExpressHandler } from "@repo/trpc/corsair";
+import { processOAuthCallback } from "corsair/oauth";
 import { env } from "@repo/env";
 
 export const app = express();
@@ -31,8 +32,33 @@ app.use(cookieParser());
 
 app.use(express.json());
 
+app.get("/api/corsair/github/callback", async (req, res) => {
+  const code = req.query.code as string;
+  const state = req.query.state as string;
+  if (!code || !state) {
+    return res.status(400).send("Missing code or state in OAuth callback.");
+  }
+  try {
+    const result = await processOAuthCallback(corsair, {
+      code,
+      state,
+      redirectUri: `${env.BASE_URL}/api/corsair/github/callback`,
+    });
+    console.log("[corsair] Successfully completed OAuth callback for tenant:", result);
+    return res.redirect("http://localhost:3000/connect?status=success");
+  } catch (err: unknown) {
+    console.error("OAuth Callback Error Detail:", err);
+    return res.redirect(
+      `http://localhost:3000/connect?error=${encodeURIComponent(
+        err instanceof Error ? err.message : "OAuth callback failed",
+      )}`,
+    );
+  }
+});
+
+app.use("/api/corsair", toExpressHandler(corsair));
+
 app.get("/", (req, res) => {
-  app.use("/api/corsair", toExpressHandler(corsair));
   return res.json({ message: "Streamyst is up and running..." });
 });
 
