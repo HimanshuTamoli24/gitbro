@@ -12,11 +12,31 @@ export default function RepositoriesPage() {
   const [visibility, setVisibility] = useState<"all" | "public" | "private">("all");
   const [sort, setSort] = useState<"updated" | "stars" | "name">("updated");
 
-  const { repositories, isLoading } = useRepositories({
-    search,
-    visibility,
-    sort,
+  const repoType =
+    visibility === "public" ? "public" : visibility === "private" ? "private" : "owner";
+
+  const { data, isLoading } = useRepositories({
+    type: repoType,
+    sort: "updated",
   });
+
+  const rawRepos: any[] = data?.repos ?? [];
+
+  const repositories = rawRepos
+    .filter((repo: any) => {
+      if (!search) return true;
+      const q = search.toLowerCase();
+      return (
+        (repo.name ?? "").toLowerCase().includes(q) ||
+        (repo.description ?? "").toLowerCase().includes(q) ||
+        (repo.language ?? "").toLowerCase().includes(q)
+      );
+    })
+    .sort((a: any, b: any) => {
+      if (sort === "stars") return (b.stars ?? 0) - (a.stars ?? 0);
+      if (sort === "name") return (a.name ?? "").localeCompare(b.name ?? "");
+      return new Date(b.updatedAt ?? 0).getTime() - new Date(a.updatedAt ?? 0).getTime();
+    });
 
   return (
     <div className="flex flex-col gap-6">
@@ -56,8 +76,25 @@ export default function RepositoriesPage() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {repositories.map((repo) => (
-            <RepoCard key={repo.name} repo={repo} />
+          {repositories.map((repo: any) => (
+            <RepoCard
+              key={repo.name || repo.id}
+              repo={{
+                name: repo.name ?? "",
+                fullName: repo.fullName ?? repo.name ?? "",
+                url: repo.url ?? "",
+                description: repo.description ?? "",
+                language: repo.language ?? "TypeScript",
+                stars: repo.stars ?? 0,
+                forks: repo.forks ?? 0,
+                openIssues: repo.openIssues ?? 0,
+                isPrivate: Boolean(repo.isPrivate),
+                updatedAt: repo.updatedAt ?? new Date().toISOString(),
+                createdAt: repo.createdAt ?? new Date().toISOString(),
+                defaultBranch: "main",
+                topics: [],
+              }}
+            />
           ))}
         </div>
       )}

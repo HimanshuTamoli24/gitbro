@@ -12,10 +12,23 @@ export default function IssuesPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | "open" | "closed">("all");
 
-  const { issues, isLoading } = useIssues({ search, status });
+  const { data, isLoading } = useIssues({ state: status, perPage: 30 });
 
-  const openCount = DUMMY_ISSUES.filter((i) => i.state === "open").length;
-  const closedCount = DUMMY_ISSUES.filter((i) => i.state === "closed").length;
+  const rawIssues: any[] = Array.isArray(data) && data.length > 0 ? data : DUMMY_ISSUES;
+
+  const openCount = rawIssues.filter((i: any) => i.state === "open" || i.state === "OPEN").length;
+  const closedCount = rawIssues.filter(
+    (i: any) => i.state === "closed" || i.state === "CLOSED",
+  ).length;
+
+  const issues = rawIssues.filter((issue: any) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (
+      (issue.title ?? "").toLowerCase().includes(q) ||
+      (issue.repoName ?? issue.repository_url ?? "").toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -54,8 +67,28 @@ export default function IssuesPage() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {issues.map((issue) => (
-            <IssueCard key={issue.id} issue={issue} />
+          {issues.map((issue: any) => (
+            <IssueCard
+              key={issue.id ?? issue.number}
+              issue={{
+                id: issue.id ?? issue.number ?? 1,
+                title: issue.title ?? "",
+                repoName: issue.repoName ?? issue.repository_url?.split("/").pop() ?? "repository",
+                state: (issue.state ?? "open").toLowerCase() === "closed" ? "closed" : "open",
+                labels: Array.isArray(issue.labels)
+                  ? issue.labels.map((l: any) =>
+                      typeof l === "string"
+                        ? { name: l, color: "#3b82f6" }
+                        : { name: l.name ?? "", color: l.color ? `#${l.color}` : "#3b82f6" },
+                    )
+                  : [],
+                createdAt: issue.createdAt ?? issue.created_at ?? new Date().toISOString(),
+                updatedAt: issue.updatedAt ?? issue.updated_at ?? new Date().toISOString(),
+                author: issue.author ?? issue.user?.login ?? "user",
+                comments: typeof issue.comments === "number" ? issue.comments : 0,
+                assignee: issue.assignee?.login ?? issue.assignee,
+              }}
+            />
           ))}
         </div>
       )}
