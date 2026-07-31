@@ -8,8 +8,7 @@ import { generateOpenApiDocument, createOpenApiExpressMiddleware } from "trpc-to
 import { apiReference } from "@scalar/express-api-reference";
 
 import { serverRouter, createContext } from "@repo/trpc/server";
-import { corsair, toExpressHandler } from "@repo/trpc/corsair";
-import { processOAuthCallback } from "corsair/oauth";
+import { corsair, toExpressHandler, processOAuthCallback } from "@repo/corsair";
 import { env } from "@repo/env";
 
 export const app = express();
@@ -32,7 +31,7 @@ app.use(cookieParser());
 
 app.use(express.json());
 
-app.get("/api/corsair/github/callback", async (req, res) => {
+app.get("/api/oauth/callback", async (req, res) => {
   const code = req.query.code as string;
   const state = req.query.state as string;
   if (!code || !state) {
@@ -42,10 +41,10 @@ app.get("/api/corsair/github/callback", async (req, res) => {
     const result = await processOAuthCallback(corsair, {
       code,
       state,
-      redirectUri: `${env.BASE_URL}/api/corsair/github/callback`,
+      redirectUri: `${env.BASE_URL}/api/oauth/callback`,
     });
     console.log("[corsair] Successfully completed OAuth callback for tenant:", result);
-    return res.redirect("http://localhost:3000/connect?status=success");
+    return res.redirect("http://localhost:3000");
   } catch (err: unknown) {
     console.error("OAuth Callback Error Detail:", err);
     return res.redirect(

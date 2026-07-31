@@ -30,6 +30,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@repo/corsair':
+        specifier: workspace:*
+        version: link:../../packages/corsair
       '@repo/env':
         specifier: workspace:^
         version: link:../../packages/env
@@ -339,6 +342,34 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
 
+  packages/corsair:
+    dependencies:
+      '@corsair-dev/cli':
+        specifier: ^0.1.19
+        version: 0.1.19
+      '@corsair-dev/github':
+        specifier: ^0.1.14
+        version: 0.1.14(corsair@0.1.109(react@19.2.0))(zod@4.4.3)
+      '@repo/env':
+        specifier: workspace:*
+        version: link:../env
+      corsair:
+        specifier: ^0.1.109
+        version: 0.1.109(react@19.2.0)
+      pg:
+        specifier: ^8.16.3
+        version: 8.16.3
+    devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/pg':
+        specifier: ^8.16.0
+        version: 8.16.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
   packages/database:
     dependencies:
       '@repo/env':
@@ -507,6 +538,9 @@ importers:
       '@corsair-dev/github':
         specifier: ^0.1.14
         version: 0.1.14(corsair@0.1.109(react@19.2.0))(zod@4.4.3)
+      '@repo/corsair':
+        specifier: workspace:*
+        version: link:../corsair
       '@repo/env':
         specifier: workspace:^
         version: link:../env

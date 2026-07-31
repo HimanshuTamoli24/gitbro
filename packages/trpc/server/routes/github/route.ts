@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { corsair } from "../../../corsair";
+import { corsair } from "@repo/corsair";
 import { z, zodUndefinedModel } from "../../schema";
 import { protectedProcedure, publicProcedure, router } from "../../trpc";
 
@@ -73,31 +73,34 @@ export const githubRouter = router({
 
       try {
         const tenant = corsair.withTenant(ctx.user.id);
-        const repositoriesApi = tenant.github?.api?.repositories;
-        if (!repositoriesApi) {
+        const api = tenant.github?.api as any;
+        if (!api?.repositories?.list) {
           return { connected: false, repos: [] };
         }
-
-        const response: any = await repositoriesApi.list({
+        const items = await api.repositories.list({
           type: "owner",
           sort: "updated",
           perPage: 30,
         });
 
-        const items = Array.isArray(response?.data)
-          ? response.data
-          : Array.isArray(response)
-            ? response
-            : [];
-
         return {
           connected: true,
-          repos: items.map((repo: any) => ({
+          repos: (items ?? []).map((repo: any) => ({
             name: repo?.name ?? "",
-            url: repo?.html_url ?? repo?.url ?? "",
+            url: repo?.htmlUrl ?? repo?.html_url ?? repo?.url ?? "",
             description: repo?.description ?? undefined,
-            stars: typeof repo?.stargazers_count === "number" ? repo.stargazers_count : undefined,
-            forks: typeof repo?.forks_count === "number" ? repo.forks_count : undefined,
+            stars:
+              typeof repo?.stargazersCount === "number"
+                ? repo.stargazersCount
+                : typeof repo?.stargazers_count === "number"
+                  ? repo.stargazers_count
+                  : undefined,
+            forks:
+              typeof repo?.forksCount === "number"
+                ? repo.forksCount
+                : typeof repo?.forks_count === "number"
+                  ? repo.forks_count
+                  : undefined,
             language: repo?.language ?? undefined,
             isPrivate: Boolean(repo?.private),
           })),

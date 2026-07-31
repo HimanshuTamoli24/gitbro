@@ -13,6 +13,7 @@
   "dependencies": {
     "@corsair-dev/cli": "^0.1.19",
     "@corsair-dev/github": "^0.1.14",
+    "@repo/corsair": "workspace:*",
     "@repo/env": "workspace:^",
     "@repo/services": "workspace:*",
     "@repo/validators": "workspace:*",
