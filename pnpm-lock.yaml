@@ -190,9 +190,15 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.8
         version: 1.2.8(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      '@repo/corsair':
+        specifier: workspace:*
+        version: link:../../packages/corsair
       '@repo/env':
         specifier: workspace:^
         version: link:../../packages/env
+      '@repo/services':
+        specifier: workspace:*
+        version: link:../../packages/services
       '@repo/trpc':
         specifier: workspace:*
         version: link:../../packages/trpc
@@ -359,6 +365,9 @@ importers:
       pg:
         specifier: ^8.16.3
         version: 8.16.3
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
@@ -492,6 +501,9 @@ importers:
 
   packages/services:
     dependencies:
+      '@repo/corsair':
+        specifier: workspace:*
+        version: link:../corsair
       '@repo/database':
         specifier: workspace:*
         version: link:../database
