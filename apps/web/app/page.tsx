@@ -114,7 +114,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
             <FolderGit2 className="h-6 w-6 text-primary" />
-            <span>GitPro</span>
+            <span>Gitbro</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -243,7 +243,7 @@ export default function LandingPage() {
                   </div>
                   <CardTitle className="text-2xl font-bold">Connect Your GitHub Account</CardTitle>
                   <CardDescription>
-                    Link your GitHub account to GitPro to fetch and display your personal
+                    Link your GitHub account to Gitbro to fetch and display your personal
                     repositories.
                   </CardDescription>
                 </CardHeader>

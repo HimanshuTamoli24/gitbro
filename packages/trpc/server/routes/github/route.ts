@@ -171,4 +171,9 @@ export const githubRouter = router({
       }
       return await githubService.createPullRequestReview(ctx.user.id, input);
     }),
+
+  // --- COMMIT GRAPH ACTIVITY ---
+  commitActivity: publicProcedure.query(async ({ ctx }) => {
+    return await githubService.getCommitActivity(ctx.user?.id);
+  }),
 });

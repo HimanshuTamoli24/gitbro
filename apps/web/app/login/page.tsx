@@ -83,7 +83,7 @@ function AuthContent() {
   return (
     <Card className="w-full max-w-md shadow-xl border">
       <CardHeader className="text-center space-y-2">
-        <CardTitle className="text-2xl font-bold tracking-tight">GitPro Account</CardTitle>
+        <CardTitle className="text-2xl font-bold tracking-tight">Gitbro Account</CardTitle>
         <CardDescription>Sign in to your account or create a new one</CardDescription>
       </CardHeader>
 

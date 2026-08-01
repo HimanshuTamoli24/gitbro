@@ -49,7 +49,7 @@ function ConnectGithubContent() {
           <Github className="h-6 w-6" />
         </div>
         <CardTitle className="text-2xl font-bold tracking-tight">Connect GitHub Account</CardTitle>
-        <CardDescription>Authorize GitPro to access your GitHub repositories</CardDescription>
+        <CardDescription>Authorize Gitbro to access your GitHub repositories</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">

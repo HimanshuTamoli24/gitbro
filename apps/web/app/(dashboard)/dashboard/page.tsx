@@ -8,6 +8,7 @@ import { StatCard } from "~/components/dashboard/stat-card";
 import { ActivityChart } from "~/components/dashboard/activity-chart";
 import { LanguageChart } from "~/components/dashboard/language-chart";
 import { RecentRepos } from "~/components/dashboard/recent-repos";
+import { GithubCommitGraph } from "~/components/dashboard/github-commit-graph";
 
 export default function DashboardPage() {
   const { stats, isLoading } = useDashboardStats();
@@ -25,30 +26,29 @@ export default function DashboardPage() {
           value={stats.totalRepos}
           change={stats.reposChange}
           icon={FolderGit2}
-          accentColor="#f97316"
         />
         <StatCard
           title="Open Issues"
           value={stats.openIssues}
           change={stats.issuesChange}
           icon={CircleDot}
-          accentColor="#ef4444"
         />
         <StatCard
-          title="Total Stars"
+          title="Total Commits"
           value={stats.totalStars.toLocaleString()}
           change={stats.starsChange}
           icon={Star}
-          accentColor="#eab308"
         />
         <StatCard
           title="Total Forks"
           value={stats.totalForks}
           change={stats.forksChange}
           icon={GitFork}
-          accentColor="#22c55e"
         />
       </div>
+
+      {/* GitHub Custom Commit Graph */}
+      <GithubCommitGraph />
 
       {/* Charts Row */}
       <div className="grid gap-6 lg:grid-cols-5">
@@ -74,6 +74,7 @@ function DashboardSkeleton() {
           <Skeleton key={i} className="h-[120px] rounded-lg" />
         ))}
       </div>
+      <Skeleton className="h-[320px] rounded-3xl" />
       <div className="grid gap-6 lg:grid-cols-5">
         <Skeleton className="h-[350px] rounded-lg lg:col-span-3" />
         <Skeleton className="h-[350px] rounded-lg lg:col-span-2" />

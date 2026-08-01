@@ -8,6 +8,8 @@
     "./lib/axios": "./lib/axios.ts",
     "./types": "./types/index.ts",
     "./components/*": "./components/*.tsx",
+    "./helper": "./helper/index.ts",
+    "./helper/*": "./helper/*.ts",
     "./hooks": "./hooks/src/index.ts",
     "./*": "./*"
   },

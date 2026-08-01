@@ -1,14 +1,12 @@
 import { publicProcedure, router } from "./trpc";
 
 import { healthRouter } from "./routes/health/route";
-import { authRouter } from "./routes/auth/route";
 import { userRouter } from "./routes/user/route";
 import { githubRouter } from "./routes/github/route";
 import z from "zod";
 
 export const serverRouter = router({
   health: healthRouter,
-  auth: authRouter,
   user: userRouter,
   github: githubRouter,
   test: publicProcedure

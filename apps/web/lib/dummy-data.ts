@@ -43,9 +43,9 @@ export interface LanguageData {
 
 export const DUMMY_REPOSITORIES: Repository[] = [
   {
-    name: "gitpro",
-    fullName: "HimanshuTamoli24/gitpro",
-    url: "https://github.com/HimanshuTamoli24/gitpro",
+    name: "Gitbro",
+    fullName: "HimanshuTamoli24/Gitbro",
+    url: "https://github.com/HimanshuTamoli24/Gitbro",
     description: "A full-stack GitHub integration platform with OAuth, tRPC, and Corsair engine.",
     language: "TypeScript",
     stars: 142,
@@ -231,7 +231,7 @@ export const DUMMY_ISSUES: Issue[] = [
   {
     id: 1,
     title: "OAuth callback fails with state mismatch on Safari",
-    repoName: "gitpro",
+    repoName: "Gitbro",
     state: "open",
     labels: [
       { name: "bug", color: "#d73a4a" },
@@ -246,7 +246,7 @@ export const DUMMY_ISSUES: Issue[] = [
   {
     id: 2,
     title: "Add dark mode toggle to dashboard sidebar",
-    repoName: "gitpro",
+    repoName: "Gitbro",
     state: "open",
     labels: [{ name: "enhancement", color: "#a2eeef" }],
     createdAt: "2026-07-29T10:00:00Z",
@@ -401,7 +401,7 @@ export const DUMMY_ISSUES: Issue[] = [
   {
     id: 14,
     title: "Implement multi-tenant data isolation for repositories",
-    repoName: "gitpro",
+    repoName: "Gitbro",
     state: "open",
     labels: [
       { name: "enhancement", color: "#a2eeef" },

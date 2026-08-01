@@ -29,7 +29,7 @@ import {
 import { Avatar, AvatarFallback } from "@repo/ui/components/ui/avatar";
 import { Button } from "@repo/ui/components/ui/button";
 import { useAuth } from "~/hooks/useAuth";
-
+import { ThemeToggle } from "~/components/theme-toggle";
 const mainNavItems = [
   {
     title: "Overview",
@@ -56,7 +56,7 @@ const secondaryNavItems = [
   },
   {
     title: "Settings",
-    href: "/dashboard",
+    href: "/settings",
     icon: Settings,
   },
 ];
@@ -69,7 +69,7 @@ export function DashboardSidebar() {
 
   return (
     <Sidebar variant="inset">
-      <SidebarHeader>
+      <SidebarHeader className="bg-muted mb-1 p-1">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
@@ -78,7 +78,7 @@ export function DashboardSidebar() {
                   <Github className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-bold text-sm">GitPro</span>
+                  <span className="font-bold text-sm">Gitbro</span>
                   <span className="text-xs text-muted-foreground">Dashboard</span>
                 </div>
               </Link>
@@ -117,16 +117,19 @@ export function DashboardSidebar() {
           <SidebarGroupLabel>Settings</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {secondaryNavItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {secondaryNavItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                      <Link href={item.href}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -144,6 +147,7 @@ export function DashboardSidebar() {
               <div className="flex flex-col gap-0 leading-none flex-1 min-w-0">
                 <span className="text-sm font-medium truncate">{user?.email ?? "Guest"}</span>
               </div>
+              <ThemeToggle variant="ghost" size="icon" className="size-7 shrink-0" />
               <Button
                 variant="ghost"
                 size="icon"

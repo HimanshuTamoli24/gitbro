@@ -283,7 +283,9 @@ export function useStorageManager(
           return fallback;
         }
 
-        return defaultOptions.onAfterGet ? defaultOptions.onAfterGet(parsed.value) : parsed.value;
+        return (
+          defaultOptions.onAfterGet ? defaultOptions.onAfterGet(parsed.value) : parsed.value
+        ) as T;
       } catch {
         return fallback;
       }
@@ -298,7 +300,7 @@ export function useStorageManager(
       const resolvedKey = resolveKey(key);
       const opt = { ...defaultOptions, ...options };
 
-      const processedValue = opt.onBeforeSet ? opt.onBeforeSet(value) : value;
+      const processedValue = (opt.onBeforeSet ? opt.onBeforeSet(value) : value) as T;
       const item: StorageItem<T> = { value: processedValue };
 
       if (opt.ttl) item.expiry = Date.now() + opt.ttl;
@@ -369,7 +371,9 @@ export function useStorageManager(
             await indexedDBStorageInstance.removeItem(resolvedKey);
             return fallback;
           }
-          return defaultOptions.onAfterGet ? defaultOptions.onAfterGet(parsed.value) : parsed.value;
+          return (
+            defaultOptions.onAfterGet ? defaultOptions.onAfterGet(parsed.value) : parsed.value
+          ) as T;
         } catch {
           return fallback;
         }
@@ -387,7 +391,7 @@ export function useStorageManager(
     ): Promise<void> => {
       const resolvedKey = resolveKey(key);
       const opt = { ...defaultOptions, ...options };
-      const processedValue = opt.onBeforeSet ? opt.onBeforeSet(value) : value;
+      const processedValue = (opt.onBeforeSet ? opt.onBeforeSet(value) : value) as T;
       const item: StorageItem<T> = { value: processedValue };
 
       if (opt.ttl) item.expiry = Date.now() + opt.ttl;
