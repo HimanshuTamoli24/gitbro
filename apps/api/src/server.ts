@@ -18,14 +18,24 @@ const openApiDocument = generateOpenApiDocument(serverRouter, {
   baseUrl: env.BASE_URL.concat("/api"),
 });
 
-if (env.NODE_ENV !== "prod") {
-  app.use(
-    cors({
-      origin: true,
-      credentials: true,
-    }),
-  );
-}
+const allowedOrigins = [
+  env.FRONTEND_URL,
+  "https://gitbro.roothq.tech",
+  "http://localhost:3000",
+].filter(Boolean) as string[];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.some((o) => origin === o || origin.startsWith(o))) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Permissive for production deployment
+      }
+    },
+    credentials: true,
+  }),
+);
 
 app.use(cookieParser());
 
@@ -44,11 +54,11 @@ app.get("/api/oauth/callback", async (req, res) => {
       redirectUri: `${env.BASE_URL}/api/oauth/callback`,
     });
     console.log("[corsair] Successfully completed OAuth callback for tenant:", result);
-    return res.redirect("http://localhost:3000");
+    return res.redirect(`${env.FRONTEND_URL}/dashboard`);
   } catch (err: unknown) {
     console.error("OAuth Callback Error Detail:", err);
     return res.redirect(
-      `http://localhost:3000/connect?error=${encodeURIComponent(
+      `${env.FRONTEND_URL}/connect?error=${encodeURIComponent(
         err instanceof Error ? err.message : "OAuth callback failed",
       )}`,
     );

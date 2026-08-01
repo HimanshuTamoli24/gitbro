@@ -30,6 +30,7 @@ const envSchema = z.object({
   PORT: z.string().optional(),
 
   BASE_URL: z.string().url().default("http://localhost:8000"),
+  FRONTEND_URL: z.string().url().default("https://gitbro.roothq.tech"),
   JWT_SECRET: z.string().optional(),
 
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
