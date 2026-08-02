@@ -333,82 +333,135 @@ export class GithubService {
 
     try {
       const api = this.getGithubApi(userId);
-      const repos = await api.repositories.list({ perPage: 10 });
-      let realCommitsThisWeek = 0;
-      let realCommitsLastWeek = 0;
+      const repos = await api.repositories.list({ perPage: 10, sort: "updated" });
 
       if (repos && repos.length > 0) {
-        // Attempt to gather commits from user's top repo
-        const topRepo = repos[0];
-        const owner = topRepo.owner?.login || topRepo.owner || userId;
-        const repoName = topRepo.name;
+        // Track daily counts (Sun - Sat => index 0 to 6)
+        const daysMap: { [key: string]: { thisWeek: number; lastWeek: number } } = {
+          Mon: { thisWeek: 0, lastWeek: 0 },
+          Tue: { thisWeek: 0, lastWeek: 0 },
+          Wed: { thisWeek: 0, lastWeek: 0 },
+          Thu: { thisWeek: 0, lastWeek: 0 },
+          Fri: { thisWeek: 0, lastWeek: 0 },
+          Sat: { thisWeek: 0, lastWeek: 0 },
+          Sun: { thisWeek: 0, lastWeek: 0 },
+        };
 
-        const commits = await api.repositories.listCommits({
-          owner,
-          repo: repoName,
-          perPage: 50,
+        const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const now = Date.now();
+        const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+        const twoWeeksMs = 2 * oneWeekMs;
+        let totalThisWeek = 0;
+        let totalLastWeek = 0;
+
+        // Fetch commits across top updated repos
+        for (const repo of repos.slice(0, 5)) {
+          const owner = repo.owner?.login || repo.owner || userId;
+          const repoName = repo.name;
+          if (!owner || !repoName) continue;
+
+          try {
+            const commits = await api.repositories.listCommits({
+              owner,
+              repo: repoName,
+              perPage: 50,
+            });
+
+            if (Array.isArray(commits)) {
+              commits.forEach((c: any) => {
+                const commitDateStr = c.commit?.committer?.date || c.commit?.author?.date;
+                if (!commitDateStr) return;
+                const commitDate = new Date(commitDateStr);
+                const commitTime = commitDate.getTime();
+                const diff = now - commitTime;
+
+                const dayName = dayNames[commitDate.getDay()];
+                if (diff <= oneWeekMs) {
+                  totalThisWeek++;
+                  if (dayName && daysMap[dayName]) {
+                    daysMap[dayName].thisWeek++;
+                  }
+                } else if (diff <= twoWeeksMs) {
+                  totalLastWeek++;
+                  if (dayName && daysMap[dayName]) {
+                    daysMap[dayName].lastWeek++;
+                  }
+                }
+              });
+            }
+          } catch (e) {
+            // Ignore errors for individual repos (e.g., empty repo)
+          }
+        }
+
+        const maxCommits = Math.max(
+          ...Object.values(daysMap).flatMap((d) => [d.thisWeek, d.lastWeek]),
+          10,
+        );
+
+        const days = Object.keys(daysMap).map((dayKey) => {
+          const d = daysMap[dayKey]!;
+          return {
+            day: dayKey,
+            lastWeekCommits: d.lastWeek,
+            thisWeekCommits: d.thisWeek,
+            lastWeekBlocks: Math.min(12, Math.ceil((d.lastWeek / maxCommits) * 12)),
+            thisWeekBlocks: Math.min(12, Math.ceil((d.thisWeek / maxCommits) * 12)),
+          };
         });
 
-        if (Array.isArray(commits) && commits.length > 0) {
-          const now = Date.now();
-          const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
+        const diff = totalThisWeek - totalLastWeek;
+        const changePercent =
+          totalLastWeek > 0
+            ? Number(((diff / totalLastWeek) * 100).toFixed(1))
+            : totalThisWeek > 0
+              ? 100
+              : 0;
+        const isIncrease = changePercent >= 0;
 
-          commits.forEach((c: any) => {
-            const commitDateStr = c.commit?.committer?.date || c.commit?.author?.date;
-            if (commitDateStr) {
-              const commitTime = new Date(commitDateStr).getTime();
-              const diff = now - commitTime;
-              if (diff <= oneWeekMs) {
-                realCommitsThisWeek++;
-              } else if (diff <= 2 * oneWeekMs) {
-                realCommitsLastWeek++;
-              }
-            }
-          });
-        }
+        return {
+          connected: true,
+          totalThisWeek,
+          totalLastWeek,
+          changePercent,
+          isIncrease,
+          changeFormatted: isIncrease
+            ? `${Math.abs(diff)} commits added in last 7 days`
+            : `${Math.abs(diff)} commits decreased in last 7 days`,
+          yAxisTicks: [
+            `${maxCommits}`,
+            `${Math.round(maxCommits * 0.8)}`,
+            `${Math.round(maxCommits * 0.6)}`,
+            `${Math.round(maxCommits * 0.4)}`,
+            `${Math.round(maxCommits * 0.2)}`,
+            "0",
+          ],
+          maxScale: maxCommits,
+          maxBlocks: 12,
+          days,
+        };
       }
-
-      const totalThisWeek = realCommitsThisWeek > 0 ? realCommitsThisWeek : 24815;
-      const totalLastWeek = realCommitsLastWeek > 0 ? realCommitsLastWeek : 30415;
-      const diff = totalThisWeek - totalLastWeek;
-      const changePercent =
-        totalLastWeek > 0 ? Number(((diff / totalLastWeek) * 100).toFixed(1)) : 0;
-      const isIncrease = changePercent >= 0;
-
-      return {
-        connected: true,
-        totalThisWeek,
-        totalLastWeek,
-        changePercent,
-        isIncrease,
-        changeFormatted: isIncrease
-          ? `${Math.abs(diff)} commits added in last 7 days`
-          : `${Math.abs(diff)} commits decreased in last 7 days`,
-        yAxisTicks: ["25k", "20k", "15k", "10k", "5k", "0k"],
-        maxScale: 25000,
-        maxBlocks: 12,
-        days: fallbackDays,
-      };
     } catch (err) {
       console.warn("getCommitActivity error:", err instanceof Error ? err.message : err);
-      return {
-        connected: false,
-        totalThisWeek: 24815,
-        totalLastWeek: 30415,
-        changePercent: -18.4,
-        isIncrease: false,
-        changeFormatted: "5.6k users lost in last 7 days",
-        yAxisTicks: ["25k", "20k", "15k", "10k", "5k", "0k"],
-        maxScale: 25000,
-        maxBlocks: 12,
-        days: fallbackDays.map((d) => ({
-          day: d.day,
-          lastWeekCommits: d.lastWeekCommits,
-          thisWeekCommits: d.thisWeekCommits,
-          lastWeekBlocks: d.lastWeekBlocks,
-          thisWeekBlocks: d.thisWeekBlocks,
-        })),
-      };
     }
+
+    return {
+      connected: false,
+      totalThisWeek: 24815,
+      totalLastWeek: 30415,
+      changePercent: -18.4,
+      isIncrease: false,
+      changeFormatted: "5.6k users lost in last 7 days",
+      yAxisTicks: ["25k", "20k", "15k", "10k", "5k", "0k"],
+      maxScale: 25000,
+      maxBlocks: 12,
+      days: fallbackDays.map((d) => ({
+        day: d.day,
+        lastWeekCommits: d.lastWeekCommits,
+        thisWeekCommits: d.thisWeekCommits,
+        lastWeekBlocks: d.lastWeekBlocks,
+        thisWeekBlocks: d.thisWeekBlocks,
+      })),
+    };
   }
 }

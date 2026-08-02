@@ -65,10 +65,6 @@ export function HeroSection() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="mt-8 flex items-center justify-center gap-3 text-xs text-muted-foreground"
         >
-          <div className="flex -space-x-2 overflow-hidden">
-            <Avatar variant="pixel" size={35} />
-            <Avatar variant="beam" size={35} />
-          </div>
           <span>
             <strong className="text-foreground font-semibold">10+</strong> developers use GitBro —
             free & no credit card required.

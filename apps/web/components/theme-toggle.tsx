@@ -185,23 +185,10 @@ export function ThemeSelector({ className }: { className?: string }) {
       previewContent: "bg-slate-900 border-slate-800",
       previewLine: "bg-slate-700",
     },
-    {
-      id: "system",
-      name: "System Default",
-      description: "Automatically matches your operating system theme.",
-      icon: Monitor,
-      iconColor: "text-cyan-500",
-      previewBg:
-        "bg-gradient-to-r from-slate-100 to-slate-900 border-slate-300 dark:border-slate-700",
-      previewHeader: "bg-slate-200/80 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700",
-      previewSidebar: "bg-slate-300/50 dark:bg-slate-900/80 border-slate-300 dark:border-slate-700",
-      previewContent: "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700",
-      previewLine: "bg-slate-400 dark:bg-slate-600",
-    },
   ];
 
   return (
-    <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-3", className)}>
+    <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2", className)}>
       {themes.map((t) => {
         const isSelected = theme === t.id;
         const Icon = t.icon;
