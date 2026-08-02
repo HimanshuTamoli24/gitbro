@@ -176,4 +176,9 @@ export const githubRouter = router({
   commitActivity: publicProcedure.query(async ({ ctx }) => {
     return await githubService.getCommitActivity(ctx.user?.id);
   }),
+
+  // --- DASHBOARD AGGREGATED STATS ---
+  dashboard: publicProcedure.query(async ({ ctx }) => {
+    return await githubService.getDashboardStats(ctx.user?.id);
+  }),
 });

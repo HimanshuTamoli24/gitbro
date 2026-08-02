@@ -6,9 +6,9 @@ import { useDashboardStats } from "~/hooks/useDashboardStats";
 import { DUMMY_REPOSITORIES } from "~/lib/dummy-data";
 import { StatCard } from "~/components/dashboard/stat-card";
 import { ActivityChart } from "~/components/dashboard/activity-chart";
-import { LanguageChart } from "~/components/dashboard/language-chart";
 import { RecentRepos } from "~/components/dashboard/recent-repos";
 import { GithubCommitGraph } from "~/components/dashboard/github-commit-graph";
+import { RepositoryIssueAnalytics } from "~/components/dashboard/repository-issue-analytics";
 
 export default function DashboardPage() {
   const { stats, isLoading } = useDashboardStats();
@@ -34,7 +34,7 @@ export default function DashboardPage() {
           icon={CircleDot}
         />
         <StatCard
-          title="Total Commits"
+          title="Total Prs"
           value={stats.totalStars.toLocaleString()}
           change={stats.starsChange}
           icon={Star}
@@ -47,21 +47,9 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* GitHub Custom Commit Graph */}
       <GithubCommitGraph />
-
-      {/* Charts Row */}
-      <div className="grid gap-6 lg:grid-cols-5">
-        <div className="lg:col-span-3">
-          <ActivityChart data={stats.activityData} />
-        </div>
-        <div className="lg:col-span-2">
-          <LanguageChart data={stats.languageData} topLanguage={stats.topLanguage} />
-        </div>
-      </div>
-
-      {/* Recent Repos */}
-      <RecentRepos repositories={DUMMY_REPOSITORIES} />
+      <RepositoryIssueAnalytics />
+      <RecentRepos repositories={stats.reposList} />
     </div>
   );
 }

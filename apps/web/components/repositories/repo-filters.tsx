@@ -1,8 +1,9 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, LayoutGrid, List } from "lucide-react";
 import { Input } from "@repo/ui/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@repo/ui/components/ui/tabs";
+import { Button } from "@repo/ui/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -20,6 +21,8 @@ interface RepoFiltersProps {
   sort: "updated" | "stars" | "name";
   onSortChange: (value: "updated" | "stars" | "name") => void;
   totalCount: number;
+  viewMode: "cards" | "table";
+  onViewModeChange: (mode: "cards" | "table") => void;
 }
 
 export function RepoFilters({
@@ -30,6 +33,8 @@ export function RepoFilters({
   sort,
   onSortChange,
   totalCount,
+  viewMode,
+  onViewModeChange,
 }: RepoFiltersProps) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -48,7 +53,8 @@ export function RepoFilters({
         </span>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
+        {/* Visibility Tabs */}
         <Tabs
           value={visibility}
           onValueChange={(v) => onVisibilityChange(v as "all" | "public" | "private")}
@@ -60,6 +66,7 @@ export function RepoFilters({
           </TabsList>
         </Tabs>
 
+        {/* Sort Select */}
         <Select value={sort} onValueChange={(v) => onSortChange(v as "updated" | "stars" | "name")}>
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Sort by" />
@@ -72,6 +79,39 @@ export function RepoFilters({
             </SelectGroup>
           </SelectContent>
         </Select>
+
+        {/* Cards vs Table View Mode Switcher */}
+        <div className="flex items-center gap-0.5 bg-muted p-1 rounded-lg border border-border">
+          <Button
+            size="sm"
+            variant={viewMode === "cards" ? "secondary" : "ghost"}
+            className={`h-7 px-2 text-xs gap-1 rounded-md ${
+              viewMode === "cards"
+                ? "bg-background shadow-xs text-foreground font-semibold"
+                : "text-muted-foreground"
+            }`}
+            onClick={() => onViewModeChange("cards")}
+            title="Grid / Cards View"
+          >
+            <LayoutGrid className="size-3.5" />
+            <span className="hidden sm:inline">Cards</span>
+          </Button>
+
+          <Button
+            size="sm"
+            variant={viewMode === "table" ? "secondary" : "ghost"}
+            className={`h-7 px-2 text-xs gap-1 rounded-md ${
+              viewMode === "table"
+                ? "bg-background shadow-xs text-foreground font-semibold"
+                : "text-muted-foreground"
+            }`}
+            onClick={() => onViewModeChange("table")}
+            title="Table View"
+          >
+            <List className="size-3.5" />
+            <span className="hidden sm:inline">Table</span>
+          </Button>
+        </div>
       </div>
     </div>
   );

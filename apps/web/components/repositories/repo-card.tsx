@@ -1,117 +1,204 @@
 "use client";
 
-import { Star, GitFork, ExternalLink, Lock, Globe } from "lucide-react";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/ui/card";
+  ArrowRight,
+  CircleDot,
+  ExternalLink,
+  GitFork,
+  Github,
+  Globe,
+  Lock,
+  Star,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+
 import { Badge } from "@repo/ui/components/ui/badge";
+import { Button } from "@repo/ui/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
+
 import type { Repository } from "~/lib/dummy-data";
+import { ButtonGroup } from "@repo/ui/components/ui/button-group";
+import Avatar from "boring-avatars";
 
 const LANGUAGE_COLORS: Record<string, string> = {
   TypeScript: "#3178c6",
+  JavaScript: "#f1e05a",
   Python: "#3572A5",
   Go: "#00ADD8",
   Rust: "#dea584",
-  JavaScript: "#f1e05a",
   Java: "#b07219",
-  HCL: "#844fba",
 };
+
+function formatRelativeTime(dateString: string) {
+  const now = new Date();
+  const date = new Date(dateString);
+
+  const diff = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Yesterday";
+  if (diff < 7) return `${diff} days ago`;
+  if (diff < 30) return `${Math.floor(diff / 7)} weeks ago`;
+
+  return `${Math.floor(diff / 30)} months ago`;
+}
 
 interface RepoCardProps {
   repo: Repository;
 }
 
-function formatRelativeTime(dateString: string): string {
-  const now = new Date();
-  const date = new Date(dateString);
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return "Updated today";
-  if (diffDays === 1) return "Updated yesterday";
-  if (diffDays < 7) return `Updated ${diffDays} days ago`;
-  if (diffDays < 30) return `Updated ${Math.floor(diffDays / 7)} weeks ago`;
-  return `Updated ${Math.floor(diffDays / 30)} months ago`;
-}
-
 export function RepoCard({ repo }: RepoCardProps) {
+  const router = useRouter();
+
+  const openGithub = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(repo.url, "_blank");
+  };
+
   return (
-    <Card className="group transition-all hover:shadow-md hover:border-primary/30">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <CardTitle className="text-base">
-              <a
-                href={repo.url}
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-primary transition-colors inline-flex items-center gap-1.5 group/link"
-              >
-                <span className="truncate">{repo.name}</span>
-                <ExternalLink className="size-3.5 opacity-0 group-hover/link:opacity-100 transition-opacity shrink-0" />
-              </a>
-            </CardTitle>
-            {repo.description && (
-              <CardDescription className="mt-1 line-clamp-2">{repo.description}</CardDescription>
-            )}
+    <Card
+      onClick={() => router.push(`/repositories/${encodeURIComponent(repo.name)}`)}
+      className="
+      group
+      flex
+      h-full
+      cursor-pointer
+      flex-col
+      rounded-2xl
+      border-2
+      transition-all
+      duration-200
+ 
+      hover:outline-primary/50
+      hover:shadow-lg
+    "
+    >
+      {/* HEADER */}
+
+      <CardHeader className="pb-5 border-dashed border-b">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex gap-3 min-w-0 flex-1">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border bg-muted">
+              <Avatar
+                name={repo.name}
+                colors={["#36173d", "#ff4845", "#ff745f", "#ffc55f", "#ffec5e"]}
+                variant="marble"
+              />{" "}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <CardTitle className="truncate text-base font-semibold transition-colors group-hover:text-primary">
+                  {repo.name}
+                </CardTitle>
+              </div>
+
+              <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                {repo.description || "No description available."}
+              </p>
+            </div>
           </div>
-          <Badge variant="secondary" className="shrink-0 gap-1 text-xs">
-            {repo.isPrivate ? (
-              <>
-                <Lock className="size-3" />
-                Private
-              </>
-            ) : (
-              <>
-                <Globe className="size-3" />
-                Public
-              </>
-            )}
-          </Badge>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-          {repo.language && (
-            <span className="flex items-center gap-1.5">
+
+      {/* CONTENT */}
+
+      <CardContent className="flex-1 px-6 py-4">
+        <div className="grid grid-cols-3 gap-4">
+          {/* Language */}
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Language</p>
+
+            <div className="flex items-center gap-2">
               <span
                 className="size-2.5 rounded-full"
                 style={{
                   backgroundColor: LANGUAGE_COLORS[repo.language] ?? "#6b7280",
                 }}
               />
-              <span className="font-medium text-foreground/80">{repo.language}</span>
-            </span>
-          )}
-          <span className="flex items-center gap-1">
-            <Star className="size-3.5 text-amber-500" />
-            {repo.stars.toLocaleString()}
-          </span>
-          <span className="flex items-center gap-1">
-            <GitFork className="size-3.5" />
-            {repo.forks.toLocaleString()}
-          </span>
-          <span className="ml-auto">{formatRelativeTime(repo.updatedAt)}</span>
-        </div>
 
-        {repo.topics.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {repo.topics.map((topic) => (
-              <Badge
-                key={topic}
-                variant="outline"
-                className="text-[10px] px-1.5 py-0 font-normal text-muted-foreground"
-              >
-                {topic}
-              </Badge>
-            ))}
+              <span className="text-sm font-medium">{repo.language}</span>
+            </div>
           </div>
-        )}
+
+          {/* Issues */}
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Issues</p>
+
+            <div className="flex items-center gap-2">
+              <CircleDot className="size-4 text-orange-500" />
+              <span className="text-sm font-medium">{repo.openIssues}</span>
+            </div>
+          </div>
+
+          {/* Forks */}
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground">Forks</p>
+
+            <div className="flex items-center gap-2">
+              <GitFork className="size-4 text-blue-500" />
+              <span className="text-sm font-medium">{repo.forks}</span>
+            </div>
+          </div>
+        </div>
       </CardContent>
+
+      {/* FOOTER */}
+
+      <CardFooter className="mt-auto border-t">
+        <div className="flex w-full items-center justify-between">
+          <ButtonGroup>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={openGithub}
+              tooltip={`Open on GitHub: ${repo.url}`}
+            >
+              <Github className="size-4" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1 text-sm text-muted-foreground relative"
+              tooltip={`${repo.stars.toLocaleString()} Stars`}
+            >
+              <Star className="size-5 text-yellow-500 " />
+              {repo.stars.toLocaleString()}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1 text-sm text-muted-foreground"
+              tooltip={repo.isPrivate ? "Private Repository" : "Public Repository"}
+            >
+              {repo.isPrivate ? (
+                <Lock className="size-3 font-bold" />
+              ) : (
+                <Globe className="size-3 font-bold" />
+              )}
+            </Button>
+          </ButtonGroup>
+
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-muted-foreground">
+              {formatRelativeTime(repo.updatedAt)}
+            </span>
+
+            <ArrowRight
+              className="
+                size-4
+                opacity-0
+                transition-all
+                duration-200
+                group-hover:translate-x-1
+                group-hover:opacity-100
+              "
+            />
+          </div>
+        </div>
+      </CardFooter>
     </Card>
   );
 }

@@ -90,46 +90,6 @@ export function GithubCommitGraph() {
     <div className="relative w-full rounded-3xl border border-border bg-card p-6 shadow-xs transition-all duration-200 hover:shadow-sm">
       {/* --- HEADER ROW --- */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <span>Active users</span>
-            {activity?.connected && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                <Github className="size-3" /> Connected
-              </span>
-            )}
-          </div>
-
-          <div className="mt-1 flex flex-wrap items-baseline gap-3">
-            <span className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-              {totalThisWeek.toLocaleString()}
-            </span>
-
-            {/* Metric Trend Badge using CSS Tokens */}
-            <div className="inline-flex items-center gap-1 text-xs font-semibold">
-              <div
-                className={cn(
-                  "flex size-4 items-center justify-center rounded-full text-white",
-                  isIncrease ? "bg-emerald-500" : "bg-destructive",
-                )}
-              >
-                {isIncrease ? (
-                  <ArrowUpRight className="size-3 stroke-[2.5]" />
-                ) : (
-                  <ArrowDownRight className="size-3 stroke-[2.5]" />
-                )}
-              </div>
-              <span
-                className={cn(
-                  isIncrease ? "text-emerald-600 dark:text-emerald-400" : "text-destructive",
-                )}
-              >
-                {changeFormatted}
-              </span>
-            </div>
-          </div>
-        </div>
-
         {/* Legend using CSS Theme Tokens */}
         <div className="flex items-center gap-4 text-xs">
           <div className="flex items-center gap-2">

@@ -4,6 +4,7 @@ export const listRepositoriesInput = z.object({
   type: z.enum(["all", "owner", "public", "private", "member"]).optional().default("owner"),
   sort: z.enum(["created", "updated", "pushed", "full_name"]).optional().default("updated"),
   perPage: z.number().min(1).max(100).optional().default(30),
+  page: z.number().min(1).optional().default(1),
 });
 export type ListRepositoriesInput = z.input<typeof listRepositoriesInput>;
 
