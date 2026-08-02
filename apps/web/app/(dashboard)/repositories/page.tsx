@@ -48,29 +48,28 @@ const DUMMY_FIXTURE_REPOS = [
   },
 ];
 
+import { useLocalStorage } from "@repo/ui";
+
 export default function RepositoriesPage() {
   const [search, setSearch] = useState("");
   const [visibility, setVisibility] = useState<"all" | "public" | "private">("all");
   const [sort, setSort] = useState<"updated" | "stars" | "name">("updated");
-  const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
 
-  // Load view preference from localStorage on mount & fallback to cards on mobile screens
+  // Use centralized useLocalStorage hook from @repo/ui
+  const [viewMode, setViewMode] = useLocalStorage<"cards" | "table">(
+    "gitbro_repo_view_mode",
+    "cards",
+  );
+
+  // Fallback to cards view mode on mobile screens
   useEffect(() => {
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) {
+    if (window.innerWidth < 768) {
       setViewMode("cards");
-      return;
     }
-
-    const savedMode = localStorage.getItem("gitbro_repo_view_mode") as "cards" | "table" | null;
-    if (savedMode === "cards" || savedMode === "table") {
-      setViewMode(savedMode);
-    }
-  }, []);
+  }, [setViewMode]);
 
   const handleViewModeChange = (mode: "cards" | "table") => {
     setViewMode(mode);
-    localStorage.setItem("gitbro_repo_view_mode", mode);
   };
 
   const [page, setPage] = useState(1);

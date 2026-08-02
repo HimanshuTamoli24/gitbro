@@ -50,8 +50,8 @@ const mainNavItems = [
 
 const secondaryNavItems = [
   {
-    title: "Connect GitHub",
-    href: "/connect",
+    title: "Integration",
+    href: "/integration",
     icon: Link2,
   },
   {

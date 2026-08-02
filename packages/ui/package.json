@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    ".": "./index.ts",
     "./lib/utils": "./lib/utils.ts",
     "./lib/axios": "./lib/axios.ts",
     "./types": "./types/index.ts",

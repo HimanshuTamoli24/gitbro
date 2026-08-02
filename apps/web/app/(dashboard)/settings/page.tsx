@@ -20,6 +20,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@repo/ui/components/ui
 import { useAuth } from "~/hooks/useAuth";
 import { ThemeSelector } from "~/components/theme-toggle";
 
+import { useLocalStorage } from "@repo/ui";
+
 const DEFAULT_ACCENT_COLOR = "#10B981";
 const DEFAULT_RADIUS = "0.5rem";
 
@@ -41,8 +43,14 @@ const radiusOptions = [
 
 export default function SettingsPage() {
   const { user, signOut } = useAuth();
-  const [accentColor, setAccentColor] = React.useState(DEFAULT_ACCENT_COLOR);
-  const [activeRadius, setActiveRadius] = React.useState(DEFAULT_RADIUS);
+
+  // Use centralized useLocalStorage hook from @repo/ui
+  const [accentColor, setAccentColor] = useLocalStorage(
+    "gitbro_accent_color",
+    DEFAULT_ACCENT_COLOR,
+  );
+  const [activeRadius, setActiveRadius] = useLocalStorage("gitbro_border_radius", DEFAULT_RADIUS);
+
   const [compactMode, setCompactMode] = React.useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [autoSync, setAutoSync] = React.useState(true);
@@ -50,31 +58,24 @@ export default function SettingsPage() {
 
   const userInitials = user?.email ? user.email.slice(0, 2).toUpperCase() : "GP";
 
-  // Load stored preferences from localStorage on mount
+  // Sync CSS properties when state updates
   React.useEffect(() => {
-    const storedColor = localStorage.getItem("gitbro_accent_color");
-    const storedRadius = localStorage.getItem("gitbro_border_radius");
-
-    if (storedColor) {
-      setAccentColor(storedColor);
-      document.documentElement.style.setProperty("--primary", storedColor);
+    if (accentColor) {
+      document.documentElement.style.setProperty("--primary", accentColor);
     }
-    if (storedRadius) {
-      setActiveRadius(storedRadius);
-      document.documentElement.style.setProperty("--radius", storedRadius);
+    if (activeRadius) {
+      document.documentElement.style.setProperty("--radius", activeRadius);
     }
-  }, []);
+  }, [accentColor, activeRadius]);
 
   const applyAccentColor = (colorHex: string) => {
     setAccentColor(colorHex);
     document.documentElement.style.setProperty("--primary", colorHex);
-    localStorage.setItem("gitbro_accent_color", colorHex);
   };
 
   const applyRadius = (radiusVal: string) => {
     setActiveRadius(radiusVal);
     document.documentElement.style.setProperty("--radius", radiusVal);
-    localStorage.setItem("gitbro_border_radius", radiusVal);
   };
 
   const handleResetToDefault = () => {
