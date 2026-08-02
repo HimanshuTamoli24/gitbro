@@ -47,11 +47,25 @@ export async function updateSession(request: NextRequest) {
     !user &&
     !request.nextUrl.pathname.startsWith("/login") &&
     !request.nextUrl.pathname.startsWith("/signup") &&
-    !request.nextUrl.pathname.startsWith("/auth")
+    !request.nextUrl.pathname.startsWith("/auth") &&
+    request.nextUrl.pathname !== "/"
   ) {
-    // no user, potentially respond by redirecting the user to the login page
+    // Unauthenticated user trying to access protected route -> redirect to /auth?mode=login
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/auth";
+    url.searchParams.set("mode", "login");
+    return NextResponse.redirect(url);
+  }
+
+  if (
+    user &&
+    (request.nextUrl.pathname.startsWith("/login") ||
+      request.nextUrl.pathname.startsWith("/signup") ||
+      request.nextUrl.pathname.startsWith("/auth"))
+  ) {
+    // Authenticated user trying to access auth pages -> redirect to /dashboard
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard";
     return NextResponse.redirect(url);
   }
 
