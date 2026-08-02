@@ -20,65 +20,26 @@ export function GithubCommitGraph() {
 
   const [hoveredDay, setHoveredDay] = React.useState<CommitDay | null>(null);
 
-  // Fallback defaults matching reference design layout
-  const days: CommitDay[] = activity?.days ?? [
-    {
-      day: "Sun",
-      lastWeekCommits: 5200,
-      thisWeekCommits: 2100,
-      lastWeekBlocks: 3,
-      thisWeekBlocks: 1,
-    },
-    {
-      day: "Mon",
-      lastWeekCommits: 14800,
-      thisWeekCommits: 11200,
-      lastWeekBlocks: 7,
-      thisWeekBlocks: 5,
-    },
-    {
-      day: "Tue",
-      lastWeekCommits: 24000,
-      thisWeekCommits: 21500,
-      lastWeekBlocks: 11,
-      thisWeekBlocks: 10,
-    },
-    {
-      day: "Wed",
-      lastWeekCommits: 23800,
-      thisWeekCommits: 21800,
-      lastWeekBlocks: 11,
-      thisWeekBlocks: 10,
-    },
-    {
-      day: "Thu",
-      lastWeekCommits: 16400,
-      thisWeekCommits: 9800,
-      lastWeekBlocks: 8,
-      thisWeekBlocks: 5,
-    },
-    {
-      day: "Fri",
-      lastWeekCommits: 19200,
-      thisWeekCommits: 17100,
-      lastWeekBlocks: 9,
-      thisWeekBlocks: 8,
-    },
-    {
-      day: "Sat",
-      lastWeekCommits: 8400,
-      thisWeekCommits: 6200,
-      lastWeekBlocks: 4,
-      thisWeekBlocks: 3,
-    },
-    {
-      day: "Sun",
-      lastWeekCommits: 13500,
-      thisWeekCommits: 10400,
-      lastWeekBlocks: 6,
-      thisWeekBlocks: 5,
-    },
-  ];
+  // Dynamic rolling 8-day fallback (e.g. Day-7 to Day-0 Today) with 0 values
+  const fallbackDays: CommitDay[] = React.useMemo(() => {
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const now = new Date();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    const res: CommitDay[] = [];
+    for (let i = 7; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * oneDayMs);
+      res.push({
+        day: dayNames[d.getDay()]!,
+        lastWeekCommits: 0,
+        thisWeekCommits: 0,
+        lastWeekBlocks: 0,
+        thisWeekBlocks: 0,
+      });
+    }
+    return res;
+  }, []);
+
+  const days: CommitDay[] = activity?.days ?? fallbackDays;
 
   const totalThisWeek = activity?.totalThisWeek ?? 24815;
   const isIncrease = activity?.isIncrease ?? false;

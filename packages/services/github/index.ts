@@ -251,84 +251,29 @@ export class GithubService {
   // --- COMMIT GRAPH ACTIVITY ---
 
   public async getCommitActivity(userId?: string) {
-    // Default / Mock baseline matching the reference design layout
-    const fallbackDays = [
-      {
-        day: "Sun",
-        lastWeekCommits: 5200,
-        thisWeekCommits: 2100,
-        lastWeekBlocks: 3,
-        thisWeekBlocks: 1,
-      },
-      {
-        day: "Mon",
-        lastWeekCommits: 14800,
-        thisWeekCommits: 11200,
-        lastWeekBlocks: 7,
-        thisWeekBlocks: 5,
-      },
-      {
-        day: "Tue",
-        lastWeekCommits: 24000,
-        thisWeekCommits: 21500,
-        lastWeekBlocks: 11,
-        thisWeekBlocks: 10,
-      },
-      {
-        day: "Wed",
-        lastWeekCommits: 23800,
-        thisWeekCommits: 21800,
-        lastWeekBlocks: 11,
-        thisWeekBlocks: 10,
-      },
-      {
-        day: "Thu",
-        lastWeekCommits: 16400,
-        thisWeekCommits: 9800,
-        lastWeekBlocks: 8,
-        thisWeekBlocks: 5,
-      },
-      {
-        day: "Fri",
-        lastWeekCommits: 19200,
-        thisWeekCommits: 17100,
-        lastWeekBlocks: 9,
-        thisWeekBlocks: 8,
-      },
-      {
-        day: "Sat",
-        lastWeekCommits: 8400,
-        thisWeekCommits: 6200,
-        lastWeekBlocks: 4,
-        thisWeekBlocks: 3,
-      },
-      {
-        day: "Sun",
-        lastWeekCommits: 13500,
-        thisWeekCommits: 10400,
-        lastWeekBlocks: 6,
-        thisWeekBlocks: 5,
-      },
+    const emptyDays = [
+      { day: "Sun", lastWeekCommits: 0, thisWeekCommits: 0, lastWeekBlocks: 0, thisWeekBlocks: 0 },
+      { day: "Mon", lastWeekCommits: 0, thisWeekCommits: 0, lastWeekBlocks: 0, thisWeekBlocks: 0 },
+      { day: "Tue", lastWeekCommits: 0, thisWeekCommits: 0, lastWeekBlocks: 0, thisWeekBlocks: 0 },
+      { day: "Wed", lastWeekCommits: 0, thisWeekCommits: 0, lastWeekBlocks: 0, thisWeekBlocks: 0 },
+      { day: "Thu", lastWeekCommits: 0, thisWeekCommits: 0, lastWeekBlocks: 0, thisWeekBlocks: 0 },
+      { day: "Fri", lastWeekCommits: 0, thisWeekCommits: 0, lastWeekBlocks: 0, thisWeekBlocks: 0 },
+      { day: "Sat", lastWeekCommits: 0, thisWeekCommits: 0, lastWeekBlocks: 0, thisWeekBlocks: 0 },
+      { day: "Sun", lastWeekCommits: 0, thisWeekCommits: 0, lastWeekBlocks: 0, thisWeekBlocks: 0 },
     ];
 
     if (!userId) {
       return {
         connected: false,
-        totalThisWeek: 24815,
-        totalLastWeek: 30415,
-        changePercent: -18.4,
-        isIncrease: false,
-        changeFormatted: "5.6k users lost in last 7 days",
-        yAxisTicks: ["25k", "20k", "15k", "10k", "5k", "0k"],
-        maxScale: 25000,
+        totalThisWeek: 0,
+        totalLastWeek: 0,
+        changePercent: 0,
+        isIncrease: true,
+        changeFormatted: "0 commits added in last 7 days",
+        yAxisTicks: ["10", "8", "6", "4", "2", "0"],
+        maxScale: 10,
         maxBlocks: 12,
-        days: fallbackDays.map((d) => ({
-          day: d.day,
-          lastWeekCommits: d.lastWeekCommits,
-          thisWeekCommits: d.thisWeekCommits,
-          lastWeekBlocks: d.lastWeekBlocks,
-          thisWeekBlocks: d.thisWeekBlocks,
-        })),
+        days: emptyDays,
       };
     }
 
@@ -337,21 +282,27 @@ export class GithubService {
       const repos = await api.repositories.list({ perPage: 10, sort: "updated" });
 
       if (repos && repos.length > 0) {
-        // Track daily counts (Sun - Sat => index 0 to 6)
-        const daysMap: { [key: string]: { thisWeek: number; lastWeek: number } } = {
-          Mon: { thisWeek: 0, lastWeek: 0 },
-          Tue: { thisWeek: 0, lastWeek: 0 },
-          Wed: { thisWeek: 0, lastWeek: 0 },
-          Thu: { thisWeek: 0, lastWeek: 0 },
-          Fri: { thisWeek: 0, lastWeek: 0 },
-          Sat: { thisWeek: 0, lastWeek: 0 },
-          Sun: { thisWeek: 0, lastWeek: 0 },
-        };
-
         const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        const now = Date.now();
-        const oneWeekMs = 7 * 24 * 60 * 60 * 1000;
-        const twoWeeksMs = 2 * oneWeekMs;
+        const now = new Date();
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        const oneWeekMs = 7 * oneDayMs;
+
+        // Build array of last 8 consecutive calendar days [Day-7, Day-6, ..., Day-0 (Today)]
+        const rollingDays: { key: string; dayName: string; dateStart: number; dateEnd: number }[] =
+          [];
+        for (let i = 7; i >= 0; i--) {
+          const d = new Date(now.getTime() - i * oneDayMs);
+          const dayName = dayNames[d.getDay()]!;
+          const start = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+          const end = start + oneDayMs;
+          rollingDays.push({ key: `${dayName}-${i}`, dayName, dateStart: start, dateEnd: end });
+        }
+
+        const daysMap: Record<number, { thisWeek: number; lastWeek: number; dayName: string }> = {};
+        rollingDays.forEach((rd, idx) => {
+          daysMap[idx] = { thisWeek: 0, lastWeek: 0, dayName: rd.dayName };
+        });
+
         let totalThisWeek = 0;
         let totalLastWeek = 0;
 
@@ -372,42 +323,49 @@ export class GithubService {
               commits.forEach((c: any) => {
                 const commitDateStr = c.commit?.committer?.date || c.commit?.author?.date;
                 if (!commitDateStr) return;
-                const commitDate = new Date(commitDateStr);
-                const commitTime = commitDate.getTime();
-                const diff = now - commitTime;
+                const commitTime = new Date(commitDateStr).getTime();
 
-                const dayName = dayNames[commitDate.getDay()];
-                if (diff <= oneWeekMs) {
-                  totalThisWeek++;
-                  if (dayName && daysMap[dayName]) {
-                    daysMap[dayName].thisWeek++;
+                // Match against 8 rolling day slots for this week
+                rollingDays.forEach((rd, idx) => {
+                  if (commitTime >= rd.dateStart && commitTime < rd.dateEnd) {
+                    daysMap[idx]!.thisWeek++;
+                    totalThisWeek++;
                   }
-                } else if (diff <= twoWeeksMs) {
-                  totalLastWeek++;
-                  if (dayName && daysMap[dayName]) {
-                    daysMap[dayName].lastWeek++;
+                  // Check prior week (same day slot minus 7 days)
+                  if (
+                    commitTime >= rd.dateStart - oneWeekMs &&
+                    commitTime < rd.dateEnd - oneWeekMs
+                  ) {
+                    daysMap[idx]!.lastWeek++;
+                    totalLastWeek++;
                   }
-                }
+                });
               });
             }
           } catch (e) {
-            // Ignore errors for individual repos (e.g., empty repo)
+            // Ignore errors for empty repos
           }
         }
 
         const maxCommits = Math.max(
           ...Object.values(daysMap).flatMap((d) => [d.thisWeek, d.lastWeek]),
-          10,
+          1,
         );
 
-        const days = Object.keys(daysMap).map((dayKey) => {
-          const d = daysMap[dayKey]!;
+        const daysList = rollingDays.map((rd, idx) => {
+          const d = daysMap[idx]!;
           return {
-            day: dayKey,
+            day: rd.dayName,
             lastWeekCommits: d.lastWeek,
             thisWeekCommits: d.thisWeek,
-            lastWeekBlocks: Math.min(12, Math.ceil((d.lastWeek / maxCommits) * 12)),
-            thisWeekBlocks: Math.min(12, Math.ceil((d.thisWeek / maxCommits) * 12)),
+            lastWeekBlocks:
+              d.lastWeek > 0
+                ? Math.min(12, Math.max(1, Math.ceil((d.lastWeek / maxCommits) * 12)))
+                : 0,
+            thisWeekBlocks:
+              d.thisWeek > 0
+                ? Math.min(12, Math.max(1, Math.ceil((d.thisWeek / maxCommits) * 12)))
+                : 0,
           };
         });
 
@@ -439,7 +397,7 @@ export class GithubService {
           ],
           maxScale: maxCommits,
           maxBlocks: 12,
-          days,
+          days: daysList,
         };
       }
     } catch (err) {
@@ -448,21 +406,15 @@ export class GithubService {
 
     return {
       connected: false,
-      totalThisWeek: 24815,
-      totalLastWeek: 30415,
-      changePercent: -18.4,
-      isIncrease: false,
-      changeFormatted: "5.6k users lost in last 7 days",
-      yAxisTicks: ["25k", "20k", "15k", "10k", "5k", "0k"],
-      maxScale: 25000,
+      totalThisWeek: 0,
+      totalLastWeek: 0,
+      changePercent: 0,
+      isIncrease: true,
+      changeFormatted: "0 commits added in last 7 days",
+      yAxisTicks: ["10", "8", "6", "4", "2", "0"],
+      maxScale: 10,
       maxBlocks: 12,
-      days: fallbackDays.map((d) => ({
-        day: d.day,
-        lastWeekCommits: d.lastWeekCommits,
-        thisWeekCommits: d.thisWeekCommits,
-        lastWeekBlocks: d.lastWeekBlocks,
-        thisWeekBlocks: d.thisWeekBlocks,
-      })),
+      days: emptyDays,
     };
   }
 
